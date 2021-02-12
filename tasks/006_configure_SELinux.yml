@@ -1,0 +1,9 @@
+---
+
+- name: Allow SELinux httpd to connect
+  command: "{{ item.c }}"
+  with_items:
+    - { c: "setsebool -P httpd_can_network_connect on" }
+  become: yes
+  become_user: root
+  ignore_errors: yes

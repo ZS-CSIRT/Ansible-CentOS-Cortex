@@ -1,0 +1,23 @@
+---
+# tasks file for ansible-CentOS7-Cortex
+
+# Initialise the system
+- include: '000_system_init.yml'
+
+# Install system dependencies
+- include: '001_system_dependencies.yml'
+
+# Install Cortex
+- include: '002_install_Cortex.yml'
+
+# Install ElasticSearch 5.x
+- include: '003_install_ELK.yml'
+
+# Install NGINX
+- include: '004_install_Nginx.yml'
+
+# Configure Firewall
+- include: '005_configure_firewall.yml'
+
+# Configure SELinux
+- include: '006_configure_SELinux.yml'

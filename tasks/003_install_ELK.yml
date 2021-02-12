@@ -1,0 +1,25 @@
+---
+
+- name: Install ElasticSearch
+  yum:
+    name: "elasticsearch"
+    state: latest
+  become: yes
+  become_user: root
+
+- name: Create configuration file for ELK for Cortex from template
+  template:
+    src: elk.j2
+    dest: "{{ ELK_CONF_FILE }}"
+    mode: '0644'
+  become: yes
+  become_user: root
+
+- name: Start ElasticSearch service
+  systemd:
+    name: "elasticsearch"
+    state: started
+    enabled: yes
+    daemon-reload: yes
+  become: yes
+  become_user: root

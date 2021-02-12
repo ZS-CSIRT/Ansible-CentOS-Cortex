@@ -1,0 +1,22 @@
+---
+
+- name: Configure Hostname of system
+  command: "hostnamectl set-hostname {{ HOSTNAME }}"
+  become: yes
+  become_user: root
+
+- name: Restart the chronyd service
+  systemd:
+    name: chronyd
+    state: restarted
+    enabled: yes
+    daemon-reload: yes
+  become: yes
+  become_user: root
+
+- name: Update system with yum
+  yum:
+    name: "*"
+    state: latest
+  become: yes
+  become_user: root 

@@ -1,0 +1,89 @@
+---
+# defaults file for ansible-CentOS7-TheHive
+
+# Cortex configuration variables
+HOSTNAME: "cortex-01"
+FQDN: 'cortex-01.local'
+CORTEX_IP: "192.168.153.102"
+CORTEX_BASEURL: "https://192.168.153.102"
+ORG_ID: "MyOrg"
+CORTEX_EMAIL: "mail@domain.com"
+CORTEX_REPO_FILE: "/etc/yum.repos.d/thehive-project.repo"
+CORTEX_CONF_FILE: "/etc/cortex/application.conf"
+CORTEX_AR_REPO: "https://github.com/TheHive-Project/Cortex-Analyzers"
+CORTEX_AR_DIRECTORY: "/opt/Cortex-Analyzers"
+CORTEX_A_DIRECTORY: "/opt/Cortex-Analyzers/analyzers"
+CORTEX_R_DIRECTORY: "/opt/Cortex-Analyzers/responders"
+CORTEX_VIRTUALENV: "/opt/VECortex"
+
+# Advanced Cortex Settings
+CORTEX_USE_ADVANCED_SETTINGS: "true"
+CORTEX_LONGPOL_REFRESH: "1m"
+CORTEX_LONGPOL_CACHE: "15m"
+CORTEX_LONGPOL_NEXT_ITEM_WAIT: "500ms"
+CORTEX_LONGPOL_GLOBAL_MAX_WAIT: "1s"
+CORTEX_CACHE_JOB: "10 minutes"
+CORTEX_CACHE_USER: "5 minutes"
+CORTEX_CACHE_ORG: "5 minutes"
+CORTEX_MAX_MEM_BUFFER: "1M"
+CORTEX_MAX_DISK_BUFFER: "1G"
+
+# ElasticSearch configuration variables
+ELK_REPO_FILE: "/etc/yum.repos.d/elasticsearch.repo"
+ELK_CONF_FILE: "/etc/elasticsearch/elasticsearch.yml"
+ELK_HOST: "127.0.0.1"
+ELK_PORT: "9200"
+ELK_URI: "http://127.0.0.1:9200"
+ELK_CLUSTER_NAME: "cortex"
+ELK_NODE_NAME: "Cortex-node-01"
+ELK_INDEX: "cortex"
+ELK_USERNAME: ""
+ELK_SSL: "false"
+ELK_KEYSTORE: "/path/to/keystore"
+ELK_KEYSTORE_TYPE: "JKS"
+ELK_KEEPALIVE: "1m"
+ELK_PAGESIZE: "50"
+ELK_SHARDS: "5"
+ELK_REPLICAS: "0"
+ELK_NESTED_FIELDS_LIMIT: "100"
+
+# ELK Advanced settings
+ELK_ADVANCED_SETTINGS: |
+    script.inline: true
+    thread_pool.index.queue_size: 100000
+    thread_pool.search.queue_size: 100000
+    thread_pool.bulk.queue_size: 100000
+
+# SSL Configurationi
+SSL: "true"
+SSL_SELF_SIGNED: "false"
+
+# OpenSSL settings for cert
+OPENSSL_C: "BE"
+OPENSSL_ST: "State"
+OPENSSL_L: "Locality"
+OPENSSL_O: " {{ ORG_ID }}"
+OPENSSL_CN: "{{ FQDN }}"
+CORTEX_KEY: "cortex.key"
+CORTEX_CSR: "cortex.csr"       
+CORTEX_CRT: "cortex.crt"
+CORTEX_CA: "cortex.ca.crt"
+
+# AUTH settings for Cortex
+AUTH_PROVIDER: "[local,ldap]"
+
+# AD Config
+AD_DOMAIN_FQDN: "my.fqdn.domain"
+AD_SERVER_NAMES: "[server.name]"
+AD_DOMAIN_NAME: "MYDOMAIN"
+AD_SSL: "true"
+
+# LDAP Config
+LDAP_SERVER_NAMES: "server.name:port"
+LDAP_BIND_DN: "CN=User,OU=x,OU=xx,DC=xxx,DC=xxxx,DC=xxxxx"
+LDAP_BASE_DN: "OU=x,OU=xx,DC=xxx,DC=xxxx,DC=xxxxx"
+LDAP_FILTER: "(login={0})"
+LDAP_SSL: "true"
+
+# NGINX Config
+NGINX_CONF_FILE: "/etc/nginx/conf.d/000-CortexSSL.conf"

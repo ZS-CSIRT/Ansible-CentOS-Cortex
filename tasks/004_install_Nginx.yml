@@ -1,0 +1,144 @@
+---
+
+- name: Install NGINX
+  yum:
+    name: nginx
+    state: latest
+  become: yes
+  become_user: root
+
+- name: Start & Enable NGINX service
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+    daemon-reload: yes
+  become: yes
+  become_user: root
+
+- name: Instal openssl
+  yum:
+    name: openssl
+    state: latest
+  become: yes
+  become_user: root
+
+- name: Generate SSL Key
+  command: "{{ item.c }}"
+  args:
+    creates: "/etc/pki/tls/private/{{ CORTEX_KEY }}"
+  with_items:
+    - { c: "openssl genrsa -out /etc/pki/tls/private/{{ CORTEX_KEY }} 4096" }
+  become: yes
+  become_user: root
+  when:
+    SSL == "true" and SSL_SELF_SIGNED == "true"
+
+- name: Generate Certificate Signing Request
+  command: "{{ item.c }}"
+  args:
+    creates: "/etc/pki/tls/private/{{ CORTEX_CSR }}"
+  with_items:
+    - { c: "openssl req -new -subj '/C={{ OPENSSL_C }}/ST={{ OPENSSL_ST }}/L={{ OPENSSL_L }}/O={{ OPENSSL_O }}/CN={{ OPENSSL_CN }}' -key /etc/pki/tls/private/{{ CORTEX_KEY }} -out /etc/pki/tls/private/{{ CORTEX_CSR }}" }
+  become: yes
+  become_user: root
+  when:
+    SSL == "true" and SSL_SELF_SIGNED == "true"
+
+- name: Generate SelfSigned SSL Certificate
+  command: "{{ item.c }}"
+  args:
+    creates: "/etc/pki/tls/certs/{{ CORTEX_CRT }}"
+  with_items:
+    - { c: "openssl x509 -req -days 365 -in /etc/pki/tls/private/{{ CORTEX_CSR }} -signkey /etc/pki/tls/private/{{ CORTEX_KEY }} -out /etc/pki/tls/certs/{{ CORTEX_CRT }}" }
+  become: yes
+  become_user: root
+  when:
+    SSL == "true" and SSL_SELF_SIGNED == "true"
+
+- name: Copy the CA Certificate from Vault
+  copy:
+    content: "{{ cortex_ca_crt }}"
+    dest: "/etc/pki/ca-trust/source/anchors/{{ CORTEX_CA }}"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  become_user: root
+  when:
+    SSL == "true" and SSL_SELF_SIGNED == "false"
+
+- name: Copy the Cortex certificate
+  copy:
+    content: "{{ cortex_crt }}"
+    dest: "/etc/pki/tls/certs/{{ CORTEX_CRT }}"
+    owner: cortex
+    group: cortex
+    mode: 0644
+  become: yes
+  become_user: root
+  when:
+    SSL == "true" and SSL_SELF_SIGNED == "false"
+
+- name: Copy the Cortex certificate key
+  copy:
+    content: "{{ cortex_key }}"
+    dest: "/etc/pki/tls/private/{{ CORTEX_KEY }}"
+    owner: cortex
+    group: cortex
+    mode: 0600
+  become: yes
+  become_user: root
+  no_log: true
+  when:
+    SSL == "true" and SSL_SELF_SIGNED == "false"
+
+- name: Update trust ca
+  command: "update-ca-trust"
+  become: yes
+  become_user: root
+  when:
+    SSL == "true" and SSL_SELF_SIGNED == "false"
+
+- name: Create configuration file for Nginx for Cortex from template
+  template:
+    src: nginxSSL.j2
+    dest: "{{ NGINX_CONF_FILE }}"
+    mode: '0644'
+  become: yes
+  become_user: root
+  when:
+    SSL == "true"
+
+- name: Create configuration file for Nginx for Cortex from template
+  template:
+    src: nginx.j2
+    dest: "{{ NGINX_CONF_FILE }}"
+    mode: '0644'
+  become: yes
+  become_user: root
+  when:
+    SSL != "true"
+
+- name: Delete the default nginx configuration file
+  file:
+    path: "/etc/nginx/conf.d/default.conf"
+    state: absent
+  become: yes
+  become_user: root
+
+- name: restart nginx service
+  systemd:
+    name: nginx
+    state: restarted
+  become: yes
+  become_user: root  
+
+- name: start cortex service 
+  systemd:
+    name: cortex
+    state: started
+    enabled: yes
+    daemon-reload: yes
+  become: yes
+  become_user: root

@@ -1,0 +1,53 @@
+---
+
+- name: Import Cortex repository GPG Key
+  rpm_key:
+    state: present
+    key: "https://raw.githubusercontent.com/TheHive-Project/TheHive/master/PGP-PUBLIC-KEY"
+    fingerprint: "0CD5 AC59 DE5C 5A8E 0EE1 3849 3D99 BB18 562C BC1C"
+  become: yes
+  become_user: root
+
+- name: Configure Cortex Repository
+  copy:
+      dest: "{{ CORTEX_REPO_FILE }}"
+      content: |
+        [thehive-project]
+        enabled=1
+        priority=1
+        name=TheHive-Project RPM repository
+        baseurl=http://rpm.thehive-project.org/stable/noarch
+        gpgcheck=1
+  become: yes
+  become_user: root
+
+- name: Import ElasticSearch repository GPG Key
+  rpm_key:
+    state: present
+    key: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+    fingerprint: "4609 5ACC 8548 582C 1A26 99A9 D27D 666C D88E 42B4"
+  become: yes
+  become_user: root
+
+- name: Configure ElasticSearch Repository
+  copy:
+    dest: "{{ ELK_REPO_FILE }}"
+    content: |
+      [elasticsearch-5.x]
+      name=Elasticsearch repository for 5.x packages
+      baseurl=https://artifacts.elastic.co/packages/5.x/yum
+      gpgcheck=1
+      gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+      enabled=1
+      autorefresh=1
+      type=rpm-md
+  become: yes
+  become_user: root
+
+- name: Install epel-release repo
+  yum:
+    name: epel-release
+    state: latest
+  become: yes
+  become_user: root
+

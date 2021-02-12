@@ -1,0 +1,92 @@
+---
+
+- name: Install Cortex
+  yum:
+    name: "cortex"
+    state: latest
+  become: yes
+  become_user: root
+
+- name: Install Analysers and Responders dependencies
+  yum:
+    name: "{{ item.n }}"
+    state: "{{ item.s }}"
+  with_items:
+    - { n: "python3-pip", s: "latest" }
+    - { n: "python3-devel", s: "latest" }
+    - { n: "python3-virtualenv", s: "latest" }
+    - { n: "ssdeep-libs", s: "latest" }
+    - { n: "ssdeep-devel", s: "latest" }
+    - { n: "perl-Image-ExifTool", s: "latest" }
+    - { n: "file-libs", s: "latest" }
+    - { n: "git", s: "latest" }
+    - { n: "openssl-devel", s: "latest" }
+  become: yes
+  become_user: root
+
+- name: install the 'Development tools' package group
+  yum:
+    name: "@Development tools"
+    state: present
+  become: yes
+  become_user: root
+
+- name: Update pip & setuptools
+  pip:
+    name: "{{ item.n }}"
+    state: "{{ item.s }}"
+    executable: "{{ item.e }}"
+  with_items:
+    - { n: "pip", s: "latest", e: "pip3" }
+    - { n: "setuptools", s: "latest", e: "pip3" }
+  become: yes
+  become_user: root
+
+- name: Create Analysers & Responders directory
+  file:
+    path: "{{ CORTEX_AR_DIRECTORY }}"
+    state: directory
+  become: yes
+  become_user: root
+
+- name: Clone Analysers & Responders directory
+  git:
+    repo: "{{ CORTEX_AR_REPO }}"
+    dest: "{{ CORTEX_AR_DIRECTORY }}"
+  become: yes
+  become_user: root
+
+- name: Find all Analysers & Responders requirements
+  find:
+    path: "{{ CORTEX_AR_DIRECTORY }}"
+    recurse: yes
+    patterns: "requirements.txt"
+  register: found_requirements
+  become: yes
+  become_user: root
+
+- name: Install Python3 Analysers & Responders requirements in VirtualEnv
+  pip:
+    virtualenv: "{{ CORTEX_VIRTUALENV }}"
+    virtualenv_python: "python3"
+    requirements: "{{ item.path }}"
+  with_items: "{{ found_requirements.files }}"
+  become: yes
+  become_user: root
+  ignore_errors: yes
+
+- name: Create configuration file for Cortex from template
+  template:
+    src: cortex.j2
+    dest: "{{ CORTEX_CONF_FILE }}"
+    mode: '0644'
+  become: yes
+  become_user: root
+
+- name: Replace Cortex service with custom one for VirtualEnv
+  template:
+    src: cortex.service.j2
+    dest: "/etc/systemd/system/cortex.service"
+    mode: '0644'
+  become: yes
+  become_user: root

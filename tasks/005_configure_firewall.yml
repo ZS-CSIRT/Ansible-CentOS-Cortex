@@ -1,0 +1,22 @@
+---
+
+- name: Allow http connections inbound
+  command: "{{ item.c }}"
+  with_items:
+    - { c: "firewall-cmd --permanent --zone=public --add-service=http" }
+    - { c: "firewall-cmd --reload" }
+  become: yes
+  become_user: root
+  when:
+    SSL != "true"
+
+- name: Allow https connections inbound
+  command: "{{ item.c }}"
+  with_items:
+    - { c: "firewall-cmd --permanent --zone=public --add-service=https" }
+    - { c: "firewall-cmd --reload" }
+  become: yes
+  become_user: root
+  when:
+    SSL == "true"
+
