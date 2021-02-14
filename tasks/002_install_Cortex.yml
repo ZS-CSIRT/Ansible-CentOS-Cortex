@@ -12,6 +12,7 @@
     name: "{{ item.n }}"
     state: "{{ item.s }}"
   with_items:
+    - { n: "python-pip", s: "latest" }
     - { n: "python3-pip", s: "latest" }
     - { n: "python3-devel", s: "latest" }
     - { n: "python3-virtualenv", s: "latest" }
