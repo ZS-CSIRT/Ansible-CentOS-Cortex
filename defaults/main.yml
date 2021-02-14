@@ -5,7 +5,6 @@
 HOSTNAME: "cortex-01"
 FQDN: 'cortex-01.local'
 CORTEX_IP: "192.168.153.102"
-CORTEX_BASEURL: "https://192.168.153.102"
 ORG_ID: "MyOrg"
 CORTEX_EMAIL: "mail@domain.com"
 CORTEX_REPO_FILE: "/etc/yum.repos.d/thehive-project.repo"

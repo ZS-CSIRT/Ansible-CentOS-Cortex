@@ -22,9 +22,8 @@ This role comes with 6 sets of variables:
     These variables are used to define how your "Cortex" instance will be configured.  
     The variables are:  
     HOSTNAME: choose a hostname for your server  
-    FQDN: the Fully Qualified Domaine Name of your server  
+    FQDN: the Fully Qualified Domaine Name of your server. Also used by NGINC configuration template. 
     CORTEX_IP: the IP address used by the "Cortex" server  
-    CORTEX_BASEURL: the base URL you will use to connect to the "Cortex" web interface  
     ORG_ID: The ID or name of your Organisation. Will be used in "Cortex" to configure the organisation profile.  
     CORTEX_EMAIL: The email that the "Cortex" instance will impersonate when sending email notifications.  
     CORTEX_REPO_FILE: The location of the "Cortex yum repository file (default: "/etc/yum.repos.d/thehive-project.repo")  
